@@ -22,25 +22,25 @@ contract ERC20 {
  */
 library SafeMath {
 
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) { // умножение
         uint256 c = a * b;
         assert(a == 0 || c / a == b);
         return c;
     }
 
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    function div(uint256 a, uint256 b) internal pure returns (uint256) { //деление
         // assert(b > 0); // Solidity automatically throws when dividing by 0
         uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
         return c;
     }
 
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) { //вычитание
         assert(b <= a);
         return a - b;
     }
 
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) { // сложение
         uint256 c = a + b;
         assert(c >= a);
         return c;
@@ -235,39 +235,39 @@ contract MultiLevelToken is MintableToken {
 
 }
 
-contract Crowdsale is Ownable{
+contract Crowdsale is MultiLevelToken{ // заменил с Ownable
 
     using SafeMath for uint;
 
-    address multisig;
-    uint multisigPercent;
-    address bounty;
-    uint bountyPercent;
+    address public multisig;
+    uint public multisigPercent;
+    address public bounty;
+    uint public bountyPercent;
 
-    MultiLevelToken public token = new MultiLevelToken();
-    uint rate;
-    uint tokens;
-    uint value;
+    MultiLevelToken public token = new MultiLevelToken(); // сощдается токен
+    uint public rate;
+    uint public tokens;
+    uint public value;
 
-    uint tier;
-    uint i;
-    uint a=1;
-    uint b=1;
-    uint c=1;
-    uint d=1;
-    uint e=1;
-    uint parent;
-    uint256 parentMoney;
-    address whom;
-    mapping (uint => mapping(address => uint))tree;
-    mapping (uint => mapping(uint => address)) order;
+    uint public tier; //видимо какой то уровень
+    uint public i; // видимо просто переменная цикла for()тупо количество итераций
+    uint public a=1;
+    uint public b=1;
+    uint public c=1;
+    uint public d=1;
+    uint public e=1;
+    uint public parent; // для чего эта переменная??? - видимо какой то родитель - вышестоящий уровень
+    uint256 public parentMoney; // родительские деньги
+    address public whom; //кто  который
+    mapping (uint => mapping(address => uint))public tree; //меппинг в которое записываются видимо адреса из ветки
+    mapping (uint => mapping(uint => address))public order; // скорее всего покупки
 
     function Crowdsale()public {
-        multisig = 0xB52E296b76e7Da83ADE05C1458AED51D3911603f;
+        multisig = 0xCe66E79f59eafACaf4CaBaA317CaB4857487E3a1; // acc 2 ropsten
         multisigPercent = 5;
-        bounty = 0x1F2D3767D70FA59550f0BC608607c30AAb9fDa06;
+        bounty = 0x7eDE8260e573d3A3dDfc058f19309DF5a1f7397E; // acc 3 ropsten
         bountyPercent = 5;
-        rate = 100000000000000000000;
+        rate = 100000000000000000000; // 100 ether
 
     }
 
@@ -278,12 +278,12 @@ contract Crowdsale is Ownable{
 
     function distribute() public{
 
-        for (i=1;i<=10;i++){
-            while (parent >1){
-                if (parent%3==0){
+        for (i=1;i<=10;i++){ // запускается цикл for
+            while (parent >1){  // запускается цикл while если while == true // если родитель больше 1
+                if (parent%3==0){ // условие - если родитель нацело делиться на 3
                     parent=parent.div(3);
-                    whom = order[tier][parent];
-                    token.mint(whom,parentMoney);
+                    whom = order[tier][parent]; // кто??
+                    token.mint(whom,parentMoney); // выпускается токен кому и родительские деньги
                 }
                 else if ((parent-1)%3==0){
                     parent=(parent-1)/3;
@@ -302,13 +302,13 @@ contract Crowdsale is Ownable{
 
     function createTokens()public  payable {
 
-        uint _multisig = msg.value.mul(multisigPercent).div(100);
-        uint _bounty = msg.value.mul(bountyPercent).div(100);
-        tokens = rate.mul(msg.value).div(1 ether);
-        tokens = tokens.mul(55).div(100);
-        parentMoney = msg.value.mul(35).div(10);
+        uint _multisig = msg.value.mul(multisigPercent).div(100); // посчтитали 5%
+        uint _bounty = msg.value.mul(bountyPercent).div(100); // посчтитали 5%
+        tokens = rate.mul(msg.value).div(1 ether); // = 100 ether * value / 1 ether - количество токенов
+        tokens = tokens.mul(55).div(100); // выпустили 55 токенов = что получилось * 55 / 100 получили 55 токенов
+        parentMoney = msg.value.mul(35).div(10); // переменная род деньги = value * 55 / 10 - в 3,5 раза больше
 
-        if (msg.value >= 50000000000000000 && msg.value < 100000000000000000){
+        if (msg.value >= 50000000000000000 && msg.value < 100000000000000000){ // 0.05 - 0.1 Ether
             tier=1;
             tree[tier][msg.sender]=a;
             order[tier][a]=msg.sender;
@@ -316,7 +316,7 @@ contract Crowdsale is Ownable{
             a+=1;
             distribute();
         }
-        else if (msg.value >= 100000000000000000 && msg.value < 200000000000000000){
+        else if (msg.value >= 100000000000000000 && msg.value < 200000000000000000){ // 0.1 - 0.2 ether
             tier=2;
             tree[tier][msg.sender]=b;
             order[tier][b]=msg.sender;
@@ -324,7 +324,7 @@ contract Crowdsale is Ownable{
             b+=1;
             distribute();
         }
-        else if (msg.value >= 200000000000000000 && msg.value < 500000000000000000){
+        else if (msg.value >= 200000000000000000 && msg.value < 500000000000000000){ // 0.2 - 0.5 ether
             tier=3;
             tree[tier][msg.sender]=c;
             order[tier][c]=msg.sender;
@@ -332,7 +332,7 @@ contract Crowdsale is Ownable{
             c+=1;
             distribute();
         }
-        else if(msg.value >= 500000000000000000 && msg.value < 1000000000000000000){
+        else if(msg.value >= 500000000000000000 && msg.value < 1000000000000000000){ // 0.5 - 1 ether
             tier=4;
             tree[tier][msg.sender]=d;
             order[tier][d]=msg.sender;
@@ -340,7 +340,7 @@ contract Crowdsale is Ownable{
             d+=1;
             distribute();
         }
-        else if(msg.value >= 1000000000000000000){
+        else if(msg.value >= 1000000000000000000){ // больше чам 1 ether
             tier=5;
             tree[tier][msg.sender]=e;
             order[tier][e]=msg.sender;
@@ -348,9 +348,9 @@ contract Crowdsale is Ownable{
             e+=1;
             distribute();
         }
-        token.mint(msg.sender, tokens);
-        multisig.transfer(_multisig);
-        bounty.transfer(_bounty);
+        token.mint(msg.sender, tokens); // выпуск токенов
+        multisig.transfer(_multisig); // отправка средств мультисиг
+        bounty.transfer(_bounty); // отправка средств баунти
     }
 
     /*address _tokenAddress;
@@ -363,7 +363,7 @@ contract Crowdsale is Ownable{
         from.transfer(skolko.mul(1000000000000));
     }
 
-    function() external payable {
+    function() external payable { // при отправке эфира
         createTokens();
     }
 }
