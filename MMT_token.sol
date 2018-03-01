@@ -45,7 +45,6 @@ library SafeMath {
         assert(c >= a);
         return c;
     }
-
 }
 
 /**
@@ -56,7 +55,6 @@ contract BasicToken is ERC20 {
 
     using SafeMath for uint256;
     mapping(address => uint256) balances;
-
     /**
   * @dev transfer token for a specified address
   * @param _to The address to transfer to.
@@ -68,7 +66,6 @@ contract BasicToken is ERC20 {
         Transfer(msg.sender, _to, _value);
         return true;
     }
-
     /**
   * @dev Gets the balance of the specified address.
   * @param _owner The address to query the the balance of.
@@ -77,9 +74,7 @@ contract BasicToken is ERC20 {
     function balanceOf(address _owner)public constant returns (uint256 balance) {
         return balances[_owner];
     }
-
 }
-
 /**
  * @title Standard ERC20 token
  *
@@ -90,7 +85,6 @@ contract BasicToken is ERC20 {
 contract StandardToken is BasicToken {
 
     mapping (address => mapping (address => uint256)) allowed;
-
     /**
    * @dev Transfer tokens from one address to another
    * @param _from address The address which you want to send tokens from
@@ -99,24 +93,20 @@ contract StandardToken is BasicToken {
    */
     function transferFrom(address _from, address _to, uint256 _value)public returns (bool) {
         uint _allowance = allowed[_from][msg.sender];
-
         // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met
         // require (_value <= _allowance);
-
         balances[_to] = balances[_to].add(_value);
         balances[_from] = balances[_from].sub(_value);
         allowed[_from][msg.sender] = _allowance.sub(_value);
         Transfer(_from, _to, _value);
         return true;
     }
-
     /**
    * @dev Aprove the passed address to spend the specified amount of tokens on behalf of msg.sender.
    * @param _spender The address which will spend the funds.
    * @param _value The amount of tokens to be spent.
    */
     function approve(address _spender, uint256 _value)public returns (bool) {
-
         // To change the approve amount you first have to reduce the addresses`
         //  allowance to zero by calling `approve(_spender, 0)` if it is not
         //  already 0 to mitigate the race condition described here:
@@ -126,7 +116,6 @@ contract StandardToken is BasicToken {
         Approval(msg.sender, _spender, _value);
         return true;
     }
-
     /**
    * @dev Function to check the amount of tokens that an owner allowed to a spender.
    * @param _owner address The address which owns the funds.
@@ -136,9 +125,7 @@ contract StandardToken is BasicToken {
     function allowance(address _owner, address _spender)public constant returns (uint256 remaining) {
         return allowed[_owner][_spender];
     }
-
 }
-
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
@@ -147,7 +134,6 @@ contract StandardToken is BasicToken {
 contract Ownable {
 
     address public owner;
-
     /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
@@ -155,7 +141,6 @@ contract Ownable {
     function Ownable()public {
         owner = msg.sender;
     }
-
     /**
    * @dev Throws if called by any account other than the owner.
    */
@@ -163,7 +148,6 @@ contract Ownable {
         require(msg.sender == owner);
         _;
     }
-
     /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to.
@@ -172,9 +156,7 @@ contract Ownable {
         require(newOwner != address(0));
         owner = newOwner;
     }
-
 }
-
 /**
  * @title Mintable token
  * @dev Simple ERC20 Token example, with mintable token creation
@@ -192,7 +174,6 @@ contract MintableToken is StandardToken, Ownable {
         require(!mintingFinished);
         _;
     }
-
     /**
    * @dev Function to mint tokens
    * @param _to The address that will recieve the minted tokens.
@@ -206,7 +187,6 @@ contract MintableToken is StandardToken, Ownable {
         Transfer(0, _to, _amount);
         return true;
     }
-
     /**
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
@@ -216,7 +196,6 @@ contract MintableToken is StandardToken, Ownable {
         MintFinished();
         return true;
     }
-
 }
 
 contract MultiLevelToken is MintableToken {
@@ -224,7 +203,6 @@ contract MultiLevelToken is MintableToken {
     string public constant name = "Multi-Marketing token";
     string public constant symbol = "MMT";
     uint32 public constant decimals = 18;
-
 }
 
 contract Crowdsale is MultiLevelToken{ // заменил с Ownable
@@ -255,6 +233,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
     mapping (uint => mapping(uint => address))public order; // скорее всего покупки
 
     function Crowdsale()public {
+
         multisig = 0xCe66E79f59eafACaf4CaBaA317CaB4857487E3a1; // acc 2 ropsten
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -262,7 +241,6 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         rate = 100000000000000000000; // 100 ether
-
     }
 
     function finishMinting() public onlyOwner returns(bool)  {
@@ -291,7 +269,6 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
                 }
             }
         }
-
     }
 
     function createTokens()public  payable {
