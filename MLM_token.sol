@@ -363,7 +363,13 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
         from.transfer(skolko.mul(1000000000000));
     }
 
-    function() external payable { // при отправке эфира
+    function() public payable { // при отправке эфира
         createTokens();
+    }
+    /*МОЯ функция для вывода эфира*/
+    function transferEthFromContract(address _to, uint256 amount) public onlyOwner
+    {
+        amount = amount; // убрал переменную DEC из оригинала
+        _to.transfer(amount);
     }
 }
