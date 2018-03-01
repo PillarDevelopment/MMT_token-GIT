@@ -258,7 +258,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
     uint public e=1;
     uint public parent; // для чего эта переменная??? - видимо какой то родитель - вышестоящий уровень
     uint256 public parentMoney; // родительские деньги
-    address public whom; //кто  который
+    address public whom; //сюда записываем из чъей мы ветки родительской(кто типа наш директор)
     mapping (uint => mapping(address => uint))public tree; //меппинг в которое записываются видимо адреса из ветки
     mapping (uint => mapping(uint => address))public order; // скорее всего покупки
 
