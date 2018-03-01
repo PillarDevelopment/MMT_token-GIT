@@ -216,21 +216,13 @@ contract MintableToken is StandardToken, Ownable {
         MintFinished();
         return true;
     }
-    /*function approveAndCall(address spender, uint skolko) public returns (bool success) {
-        balances[msg.sender] = balances[msg.sender].sub(skolko.mul(1000000000000000000));
-        allowed[msg.sender][spender] = skolko;
-        Approval(msg.sender, spender, skolko);
-        Crowdsale(spender).receiveApproval(msg.sender, skolko, address(this));
-        return true;
-    }
-  */
 
 }
 
 contract MultiLevelToken is MintableToken {
 
-    string public constant name = "Multi-level token";
-    string public constant symbol = "MLT";
+    string public constant name = "Multi-Marketing token";
+    string public constant symbol = "MMT";
     uint32 public constant decimals = 18;
 
 }
@@ -241,13 +233,13 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
 
     address public multisig;
     uint public multisigPercent;
-    address public bounty;
-    uint public bountyPercent;
 
     MultiLevelToken public token = new MultiLevelToken(); // сощдается токен
     uint public rate;
     uint public tokens;
     uint public value;
+
+    uint256 DEC = 10 ** uint256(decimals);
 
     uint public tier; //видимо какой то уровень
     uint public i; // видимо просто переменная цикла for()тупо количество итераций
@@ -264,9 +256,11 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
 
     function Crowdsale()public {
         multisig = 0xCe66E79f59eafACaf4CaBaA317CaB4857487E3a1; // acc 2 ropsten
-        multisigPercent = 5;
-        bounty = 0x7eDE8260e573d3A3dDfc058f19309DF5a1f7397E; // acc 3 ropsten
-        bountyPercent = 5;
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        multisigPercent = 90; // 10% средств на аккаунт - только на время теста!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         rate = 100000000000000000000; // 100 ether
 
     }
@@ -303,7 +297,6 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
     function createTokens()public  payable {
 
         uint _multisig = msg.value.mul(multisigPercent).div(100); // посчтитали 5%
-        uint _bounty = msg.value.mul(bountyPercent).div(100); // посчтитали 5%
         tokens = rate.mul(msg.value).div(1 ether); // = 100 ether * value / 1 ether - количество токенов
         tokens = tokens.mul(55).div(100); // выпустили 55 токенов = что получилось * 55 / 100 получили 55 токенов
         parentMoney = msg.value.mul(35).div(10); // переменная род деньги = value * 55 / 10 - в 3,5 раза больше
@@ -350,13 +343,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
         }
         token.mint(msg.sender, tokens); // выпуск токенов
         multisig.transfer(_multisig); // отправка средств мультисиг
-        bounty.transfer(_bounty); // отправка средств баунти
     }
-
-    /*address _tokenAddress;
-    function GetTokenAddress (address Get) public onlyOwner{
-        _tokenAddress=Get;
-    }*/
 
     function receiveApproval(address from, uint skolko /*, address tokenAddress*/) public payable onlyOwner{
         //   require (tokenAddress == _tokenAddress);
@@ -369,7 +356,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
     /*МОЯ функция для вывода эфира*/
     function transferEthFromContract(address _to, uint256 amount) public onlyOwner
     {
-        amount = amount; // убрал переменную DEC из оригинала
+        amount = amount*DEC; // убрал переменную DEC из оригинала
         _to.transfer(amount);
     }
 }
