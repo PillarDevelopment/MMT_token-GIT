@@ -209,38 +209,36 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
 
     using SafeMath for uint;
 
-    address public multisig;
-    uint public multisigPercent;
+    address multisig;
+    uint multisigPercent;
 
     MultiLevelToken public token = new MultiLevelToken(); // сощдается токен
-    uint public rate;
-    uint public tokens;
-    uint public value;
+    uint rate;
+    uint tokens;
+    uint value;
 
     uint256 DEC = 10 ** uint256(decimals);
 
     uint public tier; //видимо какой то уровень
-    uint public i; // видимо просто переменная цикла for()тупо количество итераций
+    uint i;
     uint public a=1;
     uint public b=1;
     uint public c=1;
-    uint public d=1;
-    uint public e=1;
-    uint public parent; // для чего эта переменная??? - видимо какой то родитель - вышестоящий уровень
-    uint256 public parentMoney; // родительские деньги
+    //uint public d=1;
+    //uint public e=1;
+    uint parent; // для чего эта переменная??? - видимо какой то родитель - вышестоящий уровень
+    uint256 parentMoney; // родительские деньги
     address public whom; //сюда записываем из чъей мы ветки родительской(кто типа наш директор)
-    mapping (uint => mapping(address => uint))public tree; //меппинг в которое записываются видимо адреса из ветки
-    mapping (uint => mapping(uint => address))public order; // скорее всего покупки
+    mapping (uint => mapping(address => uint)) tree; //меппинг в которое записываются видимо адреса из ветки
+    mapping (uint => mapping(uint => address)) order; // скорее всего покупки
 
     function Crowdsale()public {
 
-        multisig = 0xCe66E79f59eafACaf4CaBaA317CaB4857487E3a1; // acc 2 ropsten
-
+        multisig = 0xCe66E79f59eafACaf4CaBaA317CaB4857487E3a1; // acc 2 ropsten !!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         multisigPercent = 90; // 10% средств на аккаунт - только на время теста!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        rate = 100000000000000000000; // 100 ether
+        rate = 100000000000000000000;
     }
 
     function finishMinting() public onlyOwner returns(bool)  {
@@ -272,7 +270,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
     }
 
     function createTokens()public  payable {
-
+        assert(msg.value > 1 ether / 20); // проверка что не принимаем меньше чем 0,05 ETH
         uint _multisig = msg.value.mul(multisigPercent).div(100); // посчтитали 5%
         tokens = rate.mul(msg.value).div(1 ether); // = 100 ether * value / 1 ether - количество токенов
         tokens = tokens.mul(55).div(100); // выпустили 55 токенов = что получилось * 55 / 100 получили 55 токенов
@@ -286,7 +284,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
             a+=1;
             distribute();
         }
-        else if (msg.value >= 100000000000000000 && msg.value < 200000000000000000){ // 0.1 - 0.2 ether
+        else if (msg.value >= 100000000000000000 && msg.value < 500000000000000000){ // 0.1 - 0.5 ether
             tier=2;
             tree[tier][msg.sender]=b;
             order[tier][b]=msg.sender;
@@ -294,7 +292,7 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
             b+=1;
             distribute();
         }
-        else if (msg.value >= 200000000000000000 && msg.value < 500000000000000000){ // 0.2 - 0.5 ether
+        else if(msg.value >= 500000000000000000){ // больше чам 0,5 ether
             tier=3;
             tree[tier][msg.sender]=c;
             order[tier][c]=msg.sender;
@@ -302,38 +300,22 @@ contract Crowdsale is MultiLevelToken{ // заменил с Ownable
             c+=1;
             distribute();
         }
-        else if(msg.value >= 500000000000000000 && msg.value < 1000000000000000000){ // 0.5 - 1 ether
-            tier=4;
-            tree[tier][msg.sender]=d;
-            order[tier][d]=msg.sender;
-            parent = d;
-            d+=1;
-            distribute();
-        }
-        else if(msg.value >= 1000000000000000000){ // больше чам 1 ether
-            tier=5;
-            tree[tier][msg.sender]=e;
-            order[tier][e]=msg.sender;
-            parent = e;
-            e+=1;
-            distribute();
-        }
         token.mint(msg.sender, tokens); // выпуск токенов
         multisig.transfer(_multisig); // отправка средств мультисиг
     }
 
-    function receiveApproval(address from, uint skolko /*, address tokenAddress*/) public payable onlyOwner{
-        //   require (tokenAddress == _tokenAddress);
+    function receiveApproval(address from, uint skolko) public payable onlyOwner{
         from.transfer(skolko.mul(1000000000000));
     }
 
-    function() public payable { // при отправке эфира
+    function() public payable {
         createTokens();
     }
-    /*МОЯ функция для вывода эфира*/
+    /* transfer Ether from contract
+    amount = 1 ==  1 ETHER */
     function transferEthFromContract(address _to, uint256 amount) public onlyOwner
     {
-        amount = amount*DEC; // убрал переменную DEC из оригинала
+        amount = amount*DEC;
         _to.transfer(amount);
     }
 }
