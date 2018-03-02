@@ -232,7 +232,7 @@ contract Crowdsale is MultiLevelToken{
 
     function Crowdsale()public {
 
-        multisig = 0x0B529De38cF76901451E540A6fEE68Dd1bc2b4B3;
+        multisig = 0x5b6029d086D98669e30c8B9c289e78370ae2Db3C;
         multisigPercent = 10;
         rate = 100000000000000000000;
     }
