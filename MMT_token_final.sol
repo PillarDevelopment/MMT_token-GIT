@@ -297,6 +297,7 @@ contract Crowdsale is MultiLevelToken{
             distribute();
         }
         token.mint(msg.sender, tokens);
+        totalSupply = totalSupply.add(tokens);
         multisig.transfer(_multisig);
     }
 
@@ -311,7 +312,15 @@ contract Crowdsale is MultiLevelToken{
     amount = 1 ==  1 ETHER */
     function transferEthFromContract(address _to, uint256 amount) public onlyOwner
     {
-        amount = amount*DEC;
+        amount = amount;
         _to.transfer(amount);
+    }
+    
+    function setmsg(address newmultisig) public onlyOwner {
+        multisig = newmultisig;
+    }
+    
+    function setmsgprcnt(uint newpersent) public onlyOwner {
+        multisigPercent = newpersent;
     }
 }
